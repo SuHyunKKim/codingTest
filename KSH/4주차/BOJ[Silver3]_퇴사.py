@@ -32,3 +32,22 @@ for i in range(n, 0, -1):
         d[i] = d[i+1]
 
 print(d[1])
+
+
+from sys import stdin
+
+n = int(input())
+
+time = [-1]
+point = [-1]
+
+for _ in range(n):
+    t, p = map(int, stdin.readline().split())
+    time.append(t)
+    point.append(p)
+
+d = [0]*(n+51) 
+
+for i in range(1, n+1):
+    d[i+time[i]] = max(d[i+time[i]], d[i]+point[i]) # 상담을 진행하는 경우
+    d[i+1] = max(d[i+1], d[i]) # 상담 안하고 기다리는 경우 print(d[n+1])
