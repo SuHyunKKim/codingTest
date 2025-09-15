@@ -113,7 +113,9 @@ def plot(cord):
         micro_dict[m] = count
 
     ### 실수한 부분
-    sorted_micro_dict = sorted(micro_dict.items(), reverse = True) # 미생물 갯수 많은 순서로 정렬
+    # sorted_micro_dict = sorted(micro_dict.items(), reverse = True) # 미생물 갯수 많은 순서로 정렬
+    sorted_micro_dict = sorted(micro_dict.items(), key = lambda x: -x[1]) # 미생물 갯수 많은 순서로 정렬
+    # print(sorted_micro_dict)
 
     # print(sorted_micro_dict)
     # print(micro_dict_coords)
@@ -133,9 +135,9 @@ def move_plot(sorted_micro_dict, micro_dict_coords):
 
     for micro, micros in sorted_micro_dict:
         coords = micro_dict_coords[micro] # 미생물에 대한 좌표들
-        print(coords)
+        # print(coords)
         row_sort = sorted(coords, key = lambda x: -x[0])
-        print(row_sort)
+        # print(row_sort)
         len_row = row_sort[0][0] - row_sort[-1][0] + 1
         row_min = row_sort[-1][0]
 
@@ -149,8 +151,11 @@ def move_plot(sorted_micro_dict, micro_dict_coords):
 
         for i in range(n):
             for j in range(n):
+                # print(i,j)
                 if new_graph[i][j] == 0:
-                    if n-1-j >= len_col and n-1-i >= len_row:
+                    ### 실수한 부분
+                    # if n-1-j >= len_col and n-1-i >= len_row:
+                    if n-j >= len_col and n-i >= len_row:
                         for r,c in coords:
                             new_graph[r-(row_min-i)][c-(col_min-j)] = micro
                             flag = 1
@@ -159,6 +164,19 @@ def move_plot(sorted_micro_dict, micro_dict_coords):
                 break
 
     return new_graph
+
+
+def near_bfs(graph):
+
+    dx = [1, -1, 0, 0]
+    dy = [0, 0, 1, -1]
+
+    qqq = deque()
+    qqq.append((0,0, graph[0][0]))  ### 실수한 부분
+
+    while qqq:
+        cx, cy
+
 
 # a = [(2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7), (4, 3), (4, 4), (4, 5), (4, 6), (4, 7)]
 #
@@ -170,8 +188,22 @@ def move_plot(sorted_micro_dict, micro_dict_coords):
 initial_plot(micro_animal[0])
 a,b = plot(micro_animal[1])
 new_graph = move_plot(a,b)
-
+plot_graph = new_graph
 for a in new_graph:
+    print(a)
+
+c,d = plot(micro_animal[2])
+so_new_graph = move_plot(c,d)
+plot_graph = so_new_graph
+
+for a in so_new_graph:
+    print(a)
+
+
+e,f = plot(micro_animal[3])
+very_new_graph = move_plot(e,f)
+
+for a in very_new_graph:
     print(a)
 
 # print(plot_graph)
