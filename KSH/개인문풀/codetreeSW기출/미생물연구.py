@@ -44,6 +44,9 @@ def bfs(x,y,visited):
 
     qqq = deque()
     qqq.append((x,y)) ### 실수한 부분
+
+    visited[x][y] = 1 ##### 고친 부분
+
     micro = -1
 
     while qqq:
@@ -76,7 +79,7 @@ def plot(cord):
 
     for i in range(n): # bfs로 끊어진 미생물 찾음
         for j in range(n):
-            if not visited[i][j]:
+            if not visited[i][j] and plot_graph[i][j] != 0: ##### plot_graph 0 아닌거 추가해서 여기서 그냥 해버림
                 new_visit, micro = bfs(i, j, visited)
                 visited = new_visit
                 micro_dict[micro] += 1
@@ -134,6 +137,7 @@ def move_plot(sorted_micro_dict, micro_dict_coords):
     new_graph = [[0] * n for _ in range(n)]  # 미생물 투입할 새로운 용기
 
     for micro, micros in sorted_micro_dict:
+
         coords = micro_dict_coords[micro] # 미생물에 대한 좌표들
         # print(coords)
         row_sort = sorted(coords, key = lambda x: -x[0])
@@ -166,16 +170,83 @@ def move_plot(sorted_micro_dict, micro_dict_coords):
     return new_graph
 
 
-def near_bfs(graph):
+# def near_bfs(graph):
 
-    dx = [1, -1, 0, 0]
-    dy = [0, 0, 1, -1]
+#     dx = [1, -1, 0, 0]
+#     dy = [0, 0, 1, -1]
 
-    qqq = deque()
-    qqq.append((0,0, graph[0][0]))  ### 실수한 부분
+#     visited = [[0] * n for _ in range(n)] # 인접 미생물 방문 여부
 
-    while qqq:
-        cx, cy
+#     qqq = deque()
+#     qqq.append((0,0, graph[0][0]))  ### 실수한 부분
+
+#     sticked_micro_list = []
+
+#     while qqq:
+#         cx, cy, c_micro = qqq.popleft()
+
+#         for i in range(4):
+#             nx = cx + dx[i]
+#             ny = cy + dy[i]
+#             if 0<=nx<n and 0<=ny<n and not visited[nx][ny]:
+#                 if graph[nx][ny] == c_micro:  # 만일 같은 미생물 이면
+#                     visited[nx][ny] = True
+#                     qqq.append((nx, ny, graph[nx][ny])) ### 실수한 부분
+#                 elif graph[nx][ny] != c_micro: # 만일 다른 미생물 이면
+#                     if graph[nx][ny] != 0 and c_micro != 0:     # 0이 아니면
+#                         visited[nx][ny] = True
+#                         qqq.append((nx, ny, graph[nx][ny])) ### 실수한 부분
+#                         sticked_micro_list.append((c_micro, graph[nx][ny]))
+#                     else:
+#                         visited[nx][ny] = True
+#                         qqq.append((nx, ny, graph[nx][ny]))
+    
+#     new_sticked_list = []
+#     for x,y in sticked_micro_list:
+#         if x>y:
+#             new_sticked_list.append((y,x))
+#         else:
+#             new_sticked_list.append((x,y))
+    
+#     new_sticked_list = set(new_sticked_list)
+
+#     return new_sticked_list
+
+def near_pairs(graph):
+
+    pairs = set()
+    for i in range(n):
+        for j in range(n):
+            cur = graph[i][j]
+            if cur == 0:
+                continue
+            if j+1 < n:
+                right_micro = graph[i][j+1]
+                if right_micro != 0 and right_micro != cur:
+                    a, b = sorted((cur, right_micro))
+                    pairs.add((a,b))
+            if i+1 < n:
+                down_micro = graph[i+1][j]
+                if down_micro != 0 and down_micro != cur:
+                    a, b = sorted((cur, down_micro)) ### 여기 처음에 right_micro로 했다 미친 놈
+                    pairs.add((a,b))
+    
+    return pairs
+
+
+def cal_near_micros(new_sticked_list, sorted_micro_dict):
+
+    total = 0
+    new_sorted_micro_dict = {}
+    for micro, counts in sorted_micro_dict:
+        new_sorted_micro_dict[micro] = counts
+
+    for m1, m2 in new_sticked_list:
+        multipled = new_sorted_micro_dict[m1] * new_sorted_micro_dict[m2]
+        total += multipled
+    
+    return total
+
 
 
 # a = [(2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7), (4, 3), (4, 4), (4, 5), (4, 6), (4, 7)]
@@ -185,27 +256,59 @@ def near_bfs(graph):
 # print(a)
 
 
+
+
 initial_plot(micro_animal[0])
-a,b = plot(micro_animal[1])
-new_graph = move_plot(a,b)
-plot_graph = new_graph
-for a in new_graph:
-    print(a)
+print(0)
 
-c,d = plot(micro_animal[2])
-so_new_graph = move_plot(c,d)
-plot_graph = so_new_graph
+for iter in range(1, q):
+    sorted_micro_dict, micro_dict_coords = plot(micro_animal[iter])
+    new_graph = move_plot(sorted_micro_dict, micro_dict_coords)
 
-for a in so_new_graph:
-    print(a)
+    # sticked_list = near_bfs(new_graph)
+    pairs = near_pairs(new_graph)
+    print(pairs)
+    # print(sticked_list)
+
+    ans = cal_near_micros(pairs, sorted_micro_dict)
+
+    print(ans)
+
+    plot_graph = new_graph
+
+# a,b = plot(micro_animal[1])
+# new_graph = move_plot(a,b)
+# plot_graph = new_graph
+# # for a in new_graph:
+# #     print(a)
+
+# c,d = plot(micro_animal[2])
+# so_new_graph = move_plot(c,d)
+# plot_graph = so_new_graph
+
+# # for a in so_new_graph:
+# #     print(a)
 
 
-e,f = plot(micro_animal[3])
-very_new_graph = move_plot(e,f)
+# e,f = plot(micro_animal[3])
+# very_new_graph = move_plot(e,f)
 
-for a in very_new_graph:
-    print(a)
+# print(e)
+# # print(f)
+
+# for k in very_new_graph:
+#     print(k)
+
+# sticked_list = near_bfs(very_new_graph)
+
+# print(sticked_list)
+
+# ans = cal_near_micros(sticked_list, e)
+# print(ans)
 
 # print(plot_graph)
 
 
+
+# 미생물 1짜리
+# 미생물 같은거 2개이상일 때 먼저 들어온거부터
